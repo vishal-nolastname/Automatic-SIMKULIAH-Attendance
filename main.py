@@ -8,7 +8,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import telebot
 from telebot import types
-from time import sleep
 import os
 from function import *
 import traceback

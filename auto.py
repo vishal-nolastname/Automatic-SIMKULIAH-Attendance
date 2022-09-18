@@ -1,5 +1,5 @@
 import datetime as DT
-import pytz # $ pip install pytz
+# import pytz # $ pip install pytz
 import time
 from classes import *
 import asyncio
