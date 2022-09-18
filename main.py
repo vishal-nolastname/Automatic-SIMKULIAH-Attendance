@@ -225,7 +225,7 @@ def login(nim, pw):
         status = True, nama
     
     driver.quit()
-    return False, ''
+    return status
 
 async def main(user):
     nim = user.nim
