@@ -24,7 +24,6 @@ async def absen(nim, pw, jadwal):
         # Cek apakah sudah masuk waktu absen
         if now < awal:
             dif = awal - now
-            print(dif)
             asyncio.sleep(dif.total_seconds())
         
         # Cek apakah dalam jangka waktu absen
@@ -35,6 +34,10 @@ async def absen(nim, pw, jadwal):
             if hasil[0] == True:
                 i += 1
                 continue
+        # Waktu Absen berakhir
+        elif now.time > akhir:
+            i += 1
+            continue
             
     print('Semua Absensi MK ini sudah selesai.')
         
