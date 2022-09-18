@@ -1,11 +1,9 @@
 import datetime as DT
-# import pytz # $ pip install pytz
-import time
 from classes import *
 import asyncio
 from function import *
 
-tz = pytz.timezone('Asia/Jakarta') # <- put your local timezone heretz
+UTC_OFFSET = 7
 
 async def absen(nim, pw, jadwal):
     jumlah_absensi = len(jadwal)
@@ -15,12 +13,12 @@ async def absen(nim, pw, jadwal):
         waktuAkhirAbsen = jadwal[i].tanggal + ' ' + jadwal[i].jam[-5:]
 
         awal = DT.datetime.strptime(waktuAwalAbsen, '%d-%m-%Y %H.%M')
-        awal = tz.localize(awal, is_dst=None) # make it aware
+        awal = awal - DT.timedelta(hours=UTC_OFFSET)
 
         akhir = DT.datetime.strptime(waktuAkhirAbsen, '%d-%m-%Y %H.%M')
-        akhir = tz.localize(akhir, is_dst=None) # make it aware
-        
-        now = DT.datetime.now(tz)
+        akhir = akhir - DT.timedelta(hours=UTC_OFFSET)
+
+        now = DT.datetime.now(DT.timezone.utc)
         # Cek apakah sudah masuk waktu absen
         if now < awal:
             dif = awal - now
