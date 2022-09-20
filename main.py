@@ -47,30 +47,42 @@ Berikut beberapa commands yang bisa kamu gunakan:
 # New Account
 @bot.message_handler(commands=['daftar'])
 def register(msg):
+    if msg.chat.id in user_dict and user_dict[msg.chat.id].automatic == True:
+        bot.send_message(msg.chat.id, "Fitur Automatic Absensi sedang aktif. Nonaktifkan terlebih dahulu dengan mengetik /auto")
+        return
+    
     markup = types.ForceReply(selective=False)
     sent_msg = bot.send_message(msg.chat.id, "Masukkan NIM:", reply_markup=markup)
     bot.register_next_step_handler(sent_msg, prosesInputNim)
 
 def prosesInputNim(msg):
+    nim = msg.text
+    bot.last_message_sent = msg.chat.id, msg.message_id
     markup = types.ForceReply(selective=False)
     sent_msg = bot.send_message(msg.chat.id, "Masukkan Password:", reply_markup=markup)
-    bot.register_next_step_handler(sent_msg, prosesInputPassword, msg.text)
+    bot.delete_message(*bot.last_message_sent)
+    bot.register_next_step_handler(sent_msg, prosesInputPassword, nim)
     
 def prosesInputPassword(msg, nim):
-    bot.send_message(msg.chat.id, "Logging in...")
+    pw = msg.text
+    chatid=msg.chat.id
+    msgid=msg.message_id
+    bot.last_message_sent = chatid, msgid
+    bot.send_message(chatid, "Logging in...")
+    bot.delete_message(*bot.last_message_sent)
     #bot.register_next_step_handler(sent_msg, login, nim, msg.text)
-    result = login(nim, msg.text)
+    result = login(nim, pw)
     
     if result[0] == False:
-        sent_msg = bot.send_message(msg.chat.id, "NIM atau Password Salah! Masukkan Ulang NIM:")
+        sent_msg = bot.send_message(chatid, "NIM atau Password Salah! Masukkan Ulang NIM:")
         bot.register_next_step_handler(sent_msg, prosesInputNim)
         return
     elif result[0] == True:
-        user = User(result[1], nim, msg.text)
-        user_dict[msg.chat.id] = user     
-        bot.send_message(msg.chat.id, "Berhasil Login. Halo " + user.nama)
+        user = User(result[1], nim, pw)
+        user_dict[chatid] = user     
+        bot.send_message(chatid, "Berhasil Login. Halo " + user.nama)
         markup = types.ReplyKeyboardRemove(selective=False)
-        bot.send_message(msg.chat.id, "Aku sedang mendaftarkan jadwal kuliah kamu kedalam sistem...", reply_markup=markup)
+        bot.send_message(chatid, "Jadwal kuliah sedang didaftarkan kedalam sistem...", reply_markup=markup)
         scheduler(msg, user.nim, user.password)
 
 # Functions
@@ -292,7 +304,7 @@ async def absenPerMatkul(msg, nim, pw, matkul):
                 if now < akhir:
                     print(f'tes 4 {namaMatkul}')
                     # Fungsi Absen return true jika berhasil
-                    hasil = absensi(nim, pw)
+                    hasil = absensi(nim, pw, msg.chat.id)
                     # Jika berhasil, ubah waktu awal dan akhir absen ke jadwal minggu depan
                     if hasil == True:
                         bot.send_message(msg.chat.id, f"Absensi {namaMatkul} pertemuan ke-{i+1} berhasil.")
@@ -321,7 +333,7 @@ async def absenPerMatkul(msg, nim, pw, matkul):
         if i >= jumlah_absensi:
             bot.send_message(msg.chat.id, f"Semua Absensi {namaMatkul} berhasil.")
         
-async def absensi(nim, pw):
+async def absensi(nim, pw, id):
     try:
         driver = driver_setup()
         driver.get('https://simkuliah.unsyiah.ac.id/index.php/absensi')
@@ -336,28 +348,38 @@ async def absensi(nim, pw):
         cekAbsensi = status_absen.split('\n')
 
         status = ''
+        hasil = False
     # JIKA BELUM MASUK WAKTU ABSEN
         if "Belum masuk waktu absen." in cekAbsensi[0]:
             status = 'Belum masuk waktu absen.'
-            driver.quit()
-            return False
+            hasil = False
     # JIKA BELUM ABSEN
         elif "Anda belum absen" in cekAbsensi[1] :
             informasiMK = driver.find_element(By.CLASS_NAME, 'card-header').text # dapatkan informasi MKnya
             driver.find_element(By.CSS_SELECTOR, 'button[id=konfirmasi-kehadiran]').click() # klik button KONFIRMASI KEHADIRAN
             await asyncio.sleep(1)
             driver.find_element(By.CLASS_NAME, 'confirm').click() # klik button ANIMATION KONFIRMASI
+            photoName = f'{id} ss absen.png'
+            driver.save_screenshot(photoName)
+            try:
+                foto = open(photoName, 'rb')
+                bot.send_photo(id, foto)
+                foto.close()
+                os.remove(photoName)
+            except Exception as e:
+                print("Error: %s : %s" % (photoName, e.strerror))
             status = 'Absensi Matakuliah ' + informasiMK + ' berhasil.'
-            driver.quit()
-            return True
+            hasil = True
     # JIKA SUDAH ABSEN
         elif "Anda sudah absen" in cekAbsensi[1] :
             status = 'Anda sudah absen'
-            driver.quit()
-            return True
-        
+            hasil = True
+            
     except:
-        return False
+        hasil = False
+        
+    driver.quit()
+    return hasil
         
 print("runninnnng!")
 bot.polling()
