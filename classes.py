@@ -3,7 +3,9 @@ class User:
         self.nama = nama
         self.nim = nim
         self.password = pw
+        self.automatic = False
         self.matakuliah = None
+        self.tasks = []
         
 class Matakuliah:
     def __init__(self, kode, namaMatkul, kelas, jadwal):
@@ -13,11 +15,11 @@ class Matakuliah:
         self.jadwal = jadwal
         
 class Jadwal:
-    def __init__(self, namaDosen, nipDosen, hpDosen, hariTanggal, ruang, tanggal, jam):
+    def __init__(self, namaDosen, nipDosen, hpDosen, hari, ruang, tanggal, jam):
         self.namaDosen = namaDosen
         self.nipDosen = nipDosen
         self.hpDosen = hpDosen
-        self.hariTanggal = hariTanggal
         self.ruang = ruang
+        self.hari = hari
         self.tanggal = tanggal
         self.jam = jam

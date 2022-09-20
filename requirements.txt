@@ -1,3 +1,4 @@
 pyTelegramBotAPI==3.8.3
 selenium==4.1.0
+pytz==2022.2.1
 
