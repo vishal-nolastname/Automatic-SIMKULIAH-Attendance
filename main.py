@@ -102,7 +102,7 @@ def login(nim, pw):
     if driver.current_url == 'https://simkuliah.unsyiah.ac.id/index.php/login':
         status = False, ''
     else:
-        nama = driver.find_element(By.CSS_SELECTOR, '.user-profile > a:nth-child(1) > span:nth-child(2)').text
+        nama = driver.find_element(By.XPATH, '/html/body/div[2]/div[2]/nav/div/div[2]/div/ul[2]/li[3]/a/span').text
         status = True, nama
     
     driver.quit()
@@ -363,6 +363,7 @@ async def absensi(nim, pw, id):
             driver.find_element(By.CSS_SELECTOR, 'button[id=konfirmasi-kehadiran]').click() # klik button KONFIRMASI KEHADIRAN
             await asyncio.sleep(1)
             driver.find_element(By.CLASS_NAME, 'confirm').click() # klik button ANIMATION KONFIRMASI
+            driver.get('https://simkuliah.unsyiah.ac.id/index.php/absensi')
             photoName = f'{id} ss absen.png'
             driver.save_screenshot(photoName)
             try:
