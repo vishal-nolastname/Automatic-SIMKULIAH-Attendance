@@ -293,9 +293,13 @@ async def absenPerMatkul(msg, nim, pw, matkul):
             print(f'tes 1 {namaMatkul}')
             if now < awal:
                 dif = awal - now
-                print(f'tes 2 {namaMatkul}')
-                bot.send_message(msg.chat.id, f"Absensi {namaMatkul} dalam waktu {dif.total_seconds()} detik")
-                await asyncio.sleep(dif.total_seconds())
+                total_seconds = dif.total_seconds()
+                days, remainder1 = divmod(total_seconds, 86400)
+                hours, remainder2 = divmod(remainder1, 3600)
+                minutes, seconds = divmod(remainder2, 60)
+                waktuTunggu = '{:02} hari, {:02} jam, {:02} menit, {:02} detik'.format(int(days), int(hours), int(minutes), int(seconds))
+                bot.send_message(msg.chat.id, f"Absensi {namaMatkul} dalam waktu {waktuTunggu}")
+                await asyncio.sleep(total_seconds)
             
             # Cek apakah sudah dalam waktu absen dan dalam jangka waktu absen
             print(f'tes 3 {namaMatkul}')
