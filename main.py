@@ -81,8 +81,6 @@ def prosesInputPassword(msg, nim):
         user = User(result[1], nim, pw)
         user_dict[chatid] = user     
         bot.send_message(chatid, "Berhasil Login. Halo " + user.nama)
-        markup = types.ReplyKeyboardRemove(selective=False)
-        bot.send_message(chatid, "Jadwal kuliah sedang didaftarkan kedalam sistem...", reply_markup=markup)
         scheduler(msg)
 
 # Functions
@@ -98,12 +96,14 @@ def login(nim, pw):
     
     driver.get('https://simkuliah.unsyiah.ac.id/index.php/absensi')
     
-    status = False, ''
+    status = 'False', ' '
     if driver.current_url == 'https://simkuliah.unsyiah.ac.id/index.php/login':
-        status = False, ''
+        status = 'False', ' '
     else:
+        driver.find_element(By.CSS_SELECTOR, '.ti-more').click() # click button more
+        time.sleep(1)
         nama = driver.find_element(By.XPATH, '/html/body/div[2]/div[2]/nav/div/div[2]/div/ul[2]/li[3]/a/span').text
-        status = True, nama
+        status = 'True', nama
     
     driver.quit()
     return status
@@ -184,7 +184,7 @@ def checkSchedule(msg):
     
     semuaMatkul = ''
     for mk in listMatkul:
-        print(len(mk.jadwal[0].jam))
+        #print(len(mk.jadwal[0].jam))
         satuMatkul = f'{mk.kode} {mk.namaMatkul} {mk.kelas}\n{mk.jadwal[0].hari} - Jam : {mk.jadwal[0].jam}\n\n'
         semuaMatkul += satuMatkul
     
@@ -200,18 +200,18 @@ async def main(msg, user):
     tasks = []
     for i in range(0, len(user.matakuliah)):
         task = asyncio.create_task(absenPerMatkul(msg, nim, pw, user.matakuliah[i]))
-        print(i)
+        #print(i)
         tasks.append(task)
         
-    print('sudah selesai mendaftarkan semua tasks')
+    #print('sudah selesai mendaftarkan semua tasks')
     user.tasks = tasks
     gather = asyncio.gather(*[tasks[i] for i in range(len(tasks))])
     
     while not gather.done():
         await asyncio.sleep(1)
-        print('Task has not completed, checking again in a second')
+        #print('Task has not completed, checking again in a second')
         if user.automatic == False:
-            print('Cancelling the task...')
+            #print('Cancelling the task...')
             bot.send_message(msg.chat.id, "Sedang menghentikan fitur auto absensi...")
             gather.cancel()
             break
@@ -219,7 +219,7 @@ async def main(msg, user):
     try:
         await gather
     except asyncio.CancelledError:
-        print('Task has been cancelled.')
+        #print('Task has been cancelled.')
         bot.send_message(msg.chat.id, "Fitur Auto Absensi berakhir.")
         
 def akhiriAutoAbsen(msg, user):
@@ -264,24 +264,24 @@ async def absenPerMatkul(msg, nim, pw, matkul):
     namaMatkul = matkul.namaMatkul
     jadwal = matkul.jadwal
     jumlah_absensi = len(jadwal)
-    print(f'Menjalankan task {namaMatkul}, {jumlah_absensi}')
+    #print(f'Menjalankan task {namaMatkul}, {jumlah_absensi}')
     try:
         i = 0
         while i < jumlah_absensi:
             waktuAwalAbsen = jadwal[i].tanggal + ' ' + jadwal[i].jam[0:5]
             waktuAkhirAbsen = jadwal[i].tanggal + ' ' + jadwal[i].jam[-6:-1]
-            print(waktuAwalAbsen)
-            print(waktuAkhirAbsen)
+            #print(waktuAwalAbsen)
+            #print(waktuAkhirAbsen)
 
             awal = DT.datetime.strptime(waktuAwalAbsen, '%d-%m-%Y %H.%M')
             awal = awal - DT.timedelta(hours=UTC_OFFSET)
             awal = utc.localize(awal)
-            print(awal)
+            #print(awal)
 
             akhir = DT.datetime.strptime(waktuAkhirAbsen, '%d-%m-%Y %H.%M')
             akhir = akhir - DT.timedelta(hours=UTC_OFFSET)
             akhir = utc.localize(akhir)
-            print(akhir)
+            #print(akhir)
 
             now = DT.datetime.now(utc)
             # Cek apakah sudah lewat waktu absen saat pertama kali fitur diaktifkan
@@ -293,7 +293,7 @@ async def absenPerMatkul(msg, nim, pw, matkul):
             
             # Cek apakah belum masuk waktu absen
             # Jika belum, sleep sampai waktu absen
-            print(f'tes 1 {namaMatkul}')
+            #print(f'tes 1 {namaMatkul}')
             if now < awal:
                 dif = awal - now
                 total_seconds = dif.total_seconds()
@@ -305,26 +305,26 @@ async def absenPerMatkul(msg, nim, pw, matkul):
                 await asyncio.sleep(total_seconds)
             
             # Cek apakah sudah dalam waktu absen dan dalam jangka waktu absen
-            print(f'tes 3 {namaMatkul}')
+            #print(f'tes 3 {namaMatkul}')
             while True:
                 hasil = False
                 if now < akhir:
-                    print(f'tes 4 {namaMatkul}')
+                    #print(f'tes 4 {namaMatkul}')
                     # Fungsi Absen return true jika berhasil
                     hasil = absensi(nim, pw, msg.chat.id)
                     # Jika berhasil, ubah waktu awal dan akhir absen ke jadwal minggu depan
                     if hasil == True:
                         bot.send_message(msg.chat.id, f"Absensi {namaMatkul} pertemuan ke-{i+1} berhasil.")
-                        print(f'tes 5 {namaMatkul}')
+                        #print(f'tes 5 {namaMatkul}')
                         i += 1
                         break
                     else:
-                        print(f'tes 6 {namaMatkul}')
+                        #print(f'tes 6 {namaMatkul}')
                         bot.send_message(msg.chat.id, f"Absensi {namaMatkul} pertemuan ke-{i+1} gagal. Mencoba ulang...")
                         continue
                 # Waktu Absen berakhir
                 elif now > akhir:
-                    print(f'tes 7 {namaMatkul}')
+                    #print(f'tes 7 {namaMatkul}')
                     if hasil == False:
                         bot.send_message(msg.chat.id, f"Gagal absensi {namaMatkul} pertemuan ke-{i+1} dan waktunya sudah lewat. I'm Sorry :(")
                     i += 1
@@ -332,11 +332,11 @@ async def absenPerMatkul(msg, nim, pw, matkul):
             
     except asyncio.CancelledError:
         #traceback.print_exc()
-        print(f'tes 8 {namaMatkul}')
+        #print(f'tes 8 {namaMatkul}')
         bot.send_message(msg.chat.id, f"Auto Absensi {namaMatkul} dihentikan.")
         raise
     finally:
-        print(f'tes 9 {namaMatkul}')
+        #print(f'tes 9 {namaMatkul}')
         if i >= jumlah_absensi:
             bot.send_message(msg.chat.id, f"Semua Absensi {namaMatkul} berhasil.")
         
@@ -389,5 +389,5 @@ async def absensi(nim, pw, id):
     driver.quit()
     return hasil
         
-print("runninnnng!")
+print("Bot is running!")
 bot.polling()
