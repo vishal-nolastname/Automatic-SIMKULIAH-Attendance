@@ -83,7 +83,7 @@ def prosesInputPassword(msg, nim):
         bot.send_message(chatid, "Berhasil Login. Halo " + user.nama)
         markup = types.ReplyKeyboardRemove(selective=False)
         bot.send_message(chatid, "Jadwal kuliah sedang didaftarkan kedalam sistem...", reply_markup=markup)
-        scheduler(msg, user.nim, user.password)
+        scheduler(msg)
 
 # Functions
 def login(nim, pw):
@@ -109,10 +109,13 @@ def login(nim, pw):
     return status
 
 @bot.message_handler(commands=['daftarJadwal'])
-def scheduler(msg, nim, pw):
+def scheduler(msg):
     if msg.chat.id not in user_dict:
         bot.send_message(msg.chat.id, "Kamu belum terdaftar di sistem. Silahkan daftar terlebih dahulu.")
         return
+    
+    nim = user_dict[msg.chat.id].nim
+    pw = user_dict[msg.chat.id].password
     
     markup = types.ReplyKeyboardRemove(selective=False)
     while True:    # minta request kembali jika servernya erorrr 
