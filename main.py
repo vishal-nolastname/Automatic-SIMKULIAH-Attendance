@@ -199,6 +199,7 @@ def checkSchedule(msg):
 # Auto Absensi
 utc = pytz.UTC
 UTC_OFFSET = 7
+local = pytz.timezone('Asia/Jakarta')
 
 async def main(msg, user):
     nim = user.nim
@@ -280,16 +281,16 @@ async def absenPerMatkul(msg, nim, pw, matkul):
             #print(waktuAkhirAbsen)
 
             awal = DT.datetime.strptime(waktuAwalAbsen, '%d-%m-%Y %H.%M')
-            awal = awal - DT.timedelta(hours=UTC_OFFSET)
-            awal = utc.localize(awal)
+            #awal = awal - DT.timedelta(hours=UTC_OFFSET)
+            awal = local.localize(awal, is_dst=None)
             #print(awal)
 
             akhir = DT.datetime.strptime(waktuAkhirAbsen, '%d-%m-%Y %H.%M')
-            akhir = akhir - DT.timedelta(hours=UTC_OFFSET)
-            akhir = utc.localize(akhir)
+            #akhir = akhir - DT.timedelta(hours=UTC_OFFSET)
+            akhir = local.localize(akhir, is_dst=None)
             #print(akhir)
 
-            now = DT.datetime.now(utc)
+            now = DT.datetime.now(local)
             # Cek apakah sudah lewat waktu absen saat pertama kali fitur diaktifkan
             if now > akhir:
                 #print(f'tes 8 {namaMatkul}')
@@ -317,7 +318,7 @@ async def absenPerMatkul(msg, nim, pw, matkul):
                 if now < akhir:
                     #print(f'tes 4 {namaMatkul}')
                     # Fungsi Absen return true jika berhasil
-                    hasil = absensi(nim, pw, msg.chat.id)
+                    hasil = await absensi(nim, pw, msg.chat.id)
                     # Jika berhasil, ubah waktu awal dan akhir absen ke jadwal minggu depan
                     if hasil == True:
                         bot.send_message(msg.chat.id, f"Absensi {namaMatkul} pertemuan ke-{i+1} berhasil.")
@@ -373,6 +374,7 @@ async def absensi(nim, pw, id):
             await asyncio.sleep(1)
             driver.find_element(By.CLASS_NAME, 'confirm').click() # klik button ANIMATION KONFIRMASI
             driver.get('https://simkuliah.unsyiah.ac.id/index.php/absensi')
+            await asyncio.sleep(2)
             photoName = f'{id} ss absen.png'
             driver.save_screenshot(photoName)
             try:
