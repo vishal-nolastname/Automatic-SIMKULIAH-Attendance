@@ -373,7 +373,7 @@ async def absensi(nim, pw, id):
         hasil = False
         await asyncio.sleep(1)
     # JIKA BELUM ABSEN
-        if statusSkarang == 'Anda belum absen':
+        if 'Anda belum absen' in statusSkarang:
             informasiMK = driver.find_element(By.CLASS_NAME, 'card-header').text # dapatkan informasi MKnya
             driver.find_element(By.CSS_SELECTOR, 'button[id=konfirmasi-kehadiran]').click() # klik button KONFIRMASI KEHADIRAN
             await asyncio.sleep(2)
