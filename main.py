@@ -81,7 +81,7 @@ def prosesInputPassword(msg, nim):
         user = User(result[1], nim, pw)
         user_dict[chatid] = user     
         bot.send_message(chatid, "Berhasil Login. Halo " + user.nama)
-        scheduler(msg)
+        bot.send_message(chatid, "Untuk memulai mendaftarkan jadwal kuliah kedalam sistem, ketik /daftarJadwal")
 
 # Functions
 def login(nim, pw):
@@ -113,9 +113,11 @@ def scheduler(msg):
         bot.send_message(msg.chat.id, "Kamu belum terdaftar di sistem. Silahkan daftar terlebih dahulu.")
         return
     
+    bot.send_message(msg.chat.id, "Jadwal kuliah sedang didaftarkan kedalam sistem...")
     nim = user_dict[msg.chat.id].nim
     pw = user_dict[msg.chat.id].password
     
+    jumlah_percobaan = 0
     markup = types.ReplyKeyboardRemove(selective=False)
     while True:    # minta request kembali jika servernya erorrr 
         try:
@@ -163,8 +165,13 @@ def scheduler(msg):
             break
         except:
             traceback.print_exc()
-            bot.send_message(msg.chat.id, f"Gagal. Mencoba ulang...", reply_markup=markup)
-            continue
+            if jumlah_percobaan < 3:
+                jumlah_percobaan += 1
+                bot.send_message(msg.chat.id, f"Gagal. Mencoba ulang...", reply_markup=markup)
+                continue
+            else:
+                bot.send_message(msg.chat.id, f"Pendaftaran jadwal kuliah gagal.", reply_markup=markup)
+                return
         
     bot.send_message(msg.chat.id, "Pendaftaran jadwal kuliah berhasil. Ketik /jadwal untuk melihat jadwal kuliah yang sudah didaftar.")
 
