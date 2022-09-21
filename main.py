@@ -365,17 +365,15 @@ async def absensi(nim, pw, id):
         driver.find_element(By.CSS_SELECTOR, 'button[type=submit]').click() # click button submit
         driver.implicitly_wait(30)
         
-        status_absen = driver.find_element(By.XPATH, '//*[@id="pcoded"]/div[2]/div/div/div[1]/div/div/div/div[2]/div/div/div/div/div/div/div').text
-        cekAbsensi = status_absen.split('\n')
+        #status_absen = driver.find_element(By.XPATH, '//*[@id="pcoded"]/div[2]/div/div/div[1]/div/div/div/div[2]/div/div/div/div/div/div/div').text
+        #cekAbsensi = status_absen.split('\n')
 
+        statusSkarang = driver.find_element(By.XPATH, '/html/body/div[2]/div[2]/div/div/div[1]/div/div/div/div[2]/div/div/div/div[2]/div[2]/div[1]/div/p').text
         status = ''
         hasil = False
-    # JIKA BELUM MASUK WAKTU ABSEN
-        if "Belum masuk waktu absen." in cekAbsensi[0]:
-            status = 'Belum masuk waktu absen.'
-            hasil = False
+        await asyncio.sleep(1)
     # JIKA BELUM ABSEN
-        elif "Anda belum absen" in cekAbsensi[1] :
+        if statusSkarang == 'Anda belum absen':
             informasiMK = driver.find_element(By.CLASS_NAME, 'card-header').text # dapatkan informasi MKnya
             driver.find_element(By.CSS_SELECTOR, 'button[id=konfirmasi-kehadiran]').click() # klik button KONFIRMASI KEHADIRAN
             await asyncio.sleep(2)
@@ -393,10 +391,6 @@ async def absensi(nim, pw, id):
             except Exception as e:
                 print("Error: %s : %s" % (photoName, e.strerror))
             status = 'Absensi Matakuliah ' + informasiMK + ' berhasil.'
-            hasil = True
-    # JIKA SUDAH ABSEN
-        elif "Anda sudah absen" in cekAbsensi[1] :
-            status = 'Anda sudah absen'
             hasil = True
             
     except:
