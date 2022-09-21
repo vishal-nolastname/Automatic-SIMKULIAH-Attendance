@@ -1,6 +1,7 @@
 #from cgitb import text
 #from selenium import webdriver
 #from selenium.webdriver.chrome.service import Service
+from time import sleep
 from selenium.webdriver.common.by import By
 #from selenium.webdriver.support.ui import WebDriverWait
 #from selenium.webdriver.support import expected_conditions as EC
@@ -84,7 +85,7 @@ def prosesInputPassword(msg, nim):
         bot.send_message(chatid, "Untuk memulai mendaftarkan jadwal kuliah kedalam sistem, ketik /daftarJadwal")
 
 # Functions
-def login(nim, pw):
+async def login(nim, pw):
     driver = driver_setup()
     driver.get('https://simkuliah.unsyiah.ac.id/index.php/login')
     
@@ -101,6 +102,7 @@ def login(nim, pw):
         status = False, ' '
     else:
         driver.find_element(By.CSS_SELECTOR, '.ti-more').click() # click button more
+        await asyncio.sleep(2)
         nama = driver.find_element(By.XPATH, '/html/body/div[2]/div[2]/nav/div/div[2]/div/ul[2]/li[3]/a/span').text
         status = True, nama
     
@@ -322,6 +324,7 @@ async def absenPerMatkul(msg, nim, pw, matkul):
                     #print(f'tes 4 {namaMatkul}')
                     # Fungsi Absen return true jika berhasil
                     hasil = await absensi(nim, pw, msg.chat.id)
+                    await asyncio.sleep(1)
                     # Jika berhasil, ubah waktu awal dan akhir absen ke jadwal minggu depan
                     if hasil == True:
                         bot.send_message(msg.chat.id, f"Absensi {namaMatkul} pertemuan ke-{i+1} berhasil.")
@@ -374,8 +377,9 @@ async def absensi(nim, pw, id):
         elif "Anda belum absen" in cekAbsensi[1] :
             informasiMK = driver.find_element(By.CLASS_NAME, 'card-header').text # dapatkan informasi MKnya
             driver.find_element(By.CSS_SELECTOR, 'button[id=konfirmasi-kehadiran]').click() # klik button KONFIRMASI KEHADIRAN
-            await asyncio.sleep(1)
+            await asyncio.sleep(2)
             driver.find_element(By.CLASS_NAME, 'confirm').click() # klik button ANIMATION KONFIRMASI
+            await asyncio.sleep(2)
             driver.get('https://simkuliah.unsyiah.ac.id/index.php/absensi')
             await asyncio.sleep(2)
             photoName = f'{id} ss absen.png'
@@ -395,6 +399,7 @@ async def absensi(nim, pw, id):
             hasil = True
             
     except:
+        traceback.print_exc()
         hasil = False
         
     driver.quit()
