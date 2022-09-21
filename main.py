@@ -64,7 +64,7 @@ def prosesInputNim(msg):
     bot.delete_message(*bot.last_message_sent)
     bot.register_next_step_handler(sent_msg, prosesInputPassword, nim)
     
-def prosesInputPassword(msg, nim):
+async def prosesInputPassword(msg, nim):
     pw = msg.text
     chatid=msg.chat.id
     msgid=msg.message_id
@@ -72,7 +72,7 @@ def prosesInputPassword(msg, nim):
     bot.send_message(chatid, "Logging in...")
     bot.delete_message(*bot.last_message_sent)
     #bot.register_next_step_handler(sent_msg, login, nim, msg.text)
-    result = login(nim, pw)
+    result = await login(nim, pw)
     
     if result[0] == False:
         sent_msg = bot.send_message(chatid, "NIM atau Password Salah! Masukkan Ulang NIM:")
