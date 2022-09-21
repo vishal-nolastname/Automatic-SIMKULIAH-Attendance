@@ -1,9 +1,9 @@
-from cgitb import text
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
+#from cgitb import text
+#from selenium import webdriver
+#from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+#from selenium.webdriver.support.ui import WebDriverWait
+#from selenium.webdriver.support import expected_conditions as EC
 import telebot
 from telebot import types
 import os
@@ -101,7 +101,6 @@ def login(nim, pw):
         status = False, ' '
     else:
         driver.find_element(By.CSS_SELECTOR, '.ti-more').click() # click button more
-        time.sleep(1)
         nama = driver.find_element(By.XPATH, '/html/body/div[2]/div[2]/nav/div/div[2]/div/ul[2]/li[3]/a/span').text
         status = True, nama
     
