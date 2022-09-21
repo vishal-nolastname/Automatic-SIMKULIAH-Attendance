@@ -96,14 +96,14 @@ def login(nim, pw):
     
     driver.get('https://simkuliah.unsyiah.ac.id/index.php/absensi')
     
-    status = 'False', ' '
+    status = False, ' '
     if driver.current_url == 'https://simkuliah.unsyiah.ac.id/index.php/login':
-        status = 'False', ' '
+        status = False, ' '
     else:
         driver.find_element(By.CSS_SELECTOR, '.ti-more').click() # click button more
         time.sleep(1)
         nama = driver.find_element(By.XPATH, '/html/body/div[2]/div[2]/nav/div/div[2]/div/ul[2]/li[3]/a/span').text
-        status = 'True', nama
+        status = True, nama
     
     driver.quit()
     return status
