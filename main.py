@@ -291,6 +291,9 @@ async def absenPerMatkul(msg, nim, pw, matkul):
             #print(akhir)
 
             now = DT.datetime.now(local)
+            
+            print(f'{namaMatkul} : {awal} | {akhir} | {now} | {(awal - now).total_seconds()}')
+            
             # Cek apakah sudah lewat waktu absen saat pertama kali fitur diaktifkan
             if now > akhir:
                 #print(f'tes 8 {namaMatkul}')
