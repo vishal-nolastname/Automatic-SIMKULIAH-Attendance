@@ -64,7 +64,7 @@ def prosesInputNim(msg):
     bot.delete_message(*bot.last_message_sent)
     bot.register_next_step_handler(sent_msg, prosesInputPassword, nim)
     
-async def prosesInputPassword(msg, nim):
+def prosesInputPassword(msg, nim):
     pw = msg.text
     chatid=msg.chat.id
     msgid=msg.message_id
@@ -72,7 +72,7 @@ async def prosesInputPassword(msg, nim):
     bot.send_message(chatid, "Logging in...")
     bot.delete_message(*bot.last_message_sent)
     #bot.register_next_step_handler(sent_msg, login, nim, msg.text)
-    result = await login(nim, pw)
+    result = login(nim, pw)
     
     if result[0] == False:
         sent_msg = bot.send_message(chatid, "NIM atau Password Salah! Masukkan Ulang NIM:")
@@ -85,7 +85,7 @@ async def prosesInputPassword(msg, nim):
         bot.send_message(chatid, "Untuk memulai mendaftarkan jadwal kuliah kedalam sistem, ketik /daftarJadwal")
 
 # Functions
-async def login(nim, pw):
+def login(nim, pw):
     driver = driver_setup()
     driver.get('https://simkuliah.unsyiah.ac.id/index.php/login')
     
@@ -102,8 +102,9 @@ async def login(nim, pw):
         status = False, ' '
     else:
         driver.find_element(By.CSS_SELECTOR, '.ti-more').click() # click button more
-        await asyncio.sleep(2)
-        nama = driver.find_element(By.XPATH, '/html/body/div[2]/div[2]/nav/div/div[2]/div/ul[2]/li[3]/a/span').text
+        nama = ' '
+        while len(nama) <= 3:
+            nama = driver.find_element(By.XPATH, '/html/body/div[2]/div[2]/nav/div/div[2]/div/ul[2]/li[3]/a/span').text
         status = True, nama
     
     driver.quit()
